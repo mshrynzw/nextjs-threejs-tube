@@ -8,9 +8,7 @@ const Home : NextPage = () => {
   let canvas : HTMLElement
 
   useEffect(() => {
-    if (canvas) return
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    canvas = document.getElementById("canvas")
+    canvas = document.getElementById("canvas") as HTMLElement
 
     const gui = new dat.GUI({ width : 300 })
     gui.show(true)
