@@ -32,7 +32,11 @@ const Home : NextPage = () => {
     })
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(window.devicePixelRatio)
-    
+
+    // ライト
+    const light = new THREE.PointLight(0xebf2ff,500,100)
+    scene.add(light)
+
     // パス
     const pointsArray = [
       [68.5, 185.5],
@@ -57,7 +61,7 @@ const Home : NextPage = () => {
 
     // チューブ
     const geometry = new THREE.TubeGeometry(path, 300, 2, 5, true)
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshLambertMaterial({
       color : 0x99c5ff,
       side : THREE.BackSide,
       wireframe : true
@@ -69,11 +73,12 @@ const Home : NextPage = () => {
     //アニメーション
     let percentage = 0
     const render = () => {
-      percentage += 0.001
+      percentage += 0.0003
       let p1 = path.getPointAt(percentage % 1)
       let p2 = path.getPointAt((percentage + 0.01) % 1)
       camera.position.set(p1.x, p1.y, p1.z)
       camera.lookAt(p2)
+      light.position.set(p2.x, p2.y, p2.z)
 
       renderer.render(scene, camera)
       window.requestAnimationFrame(render)
