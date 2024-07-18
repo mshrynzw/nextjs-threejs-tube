@@ -1,14 +1,16 @@
 import { NextPage } from "next"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import * as THREE from "three"
 import { Vector3 } from "three"
 import * as dat from "lil-gui"
 
 const Home : NextPage = () => {
-  let canvas : HTMLElement
+  const canvasRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    canvas = document.getElementById("canvas") as HTMLElement
+    const canvas = document.getElementById("canvas") as HTMLElement
+    if (!canvas) return
+    canvasRef.current = canvas
 
     const gui = new dat.GUI({ width : 300 })
     gui.show(true)
@@ -26,13 +28,13 @@ const Home : NextPage = () => {
     )
     camera.position.z = 400
     const renderer = new THREE.WebGLRenderer({
-      canvas : canvas,
+      canvas : canvas
     })
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(window.devicePixelRatio)
 
     // ライト
-    const light = new THREE.PointLight(0xebf2ff,500,100)
+    const light = new THREE.PointLight(0xebf2ff, 500, 100)
     scene.add(light)
 
     // パス
