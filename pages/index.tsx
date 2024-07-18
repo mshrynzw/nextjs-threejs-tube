@@ -32,10 +32,7 @@ const Home : NextPage = () => {
     })
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(window.devicePixelRatio)
-
-    // Ensure the correct program is being used
-    renderer.compile(scene, camera)
-
+    
     // パス
     const pointsArray = [
       [68.5, 185.5],
