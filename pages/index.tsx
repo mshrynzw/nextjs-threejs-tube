@@ -1,118 +1,106 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import { NextPage } from "next"
+import { useEffect } from "react"
+import * as THREE from "three"
+import { Vector3 } from "three"
+import * as dat from "lil-gui"
 
-const inter = Inter({ subsets: ["latin"] });
+const Home : NextPage = () => {
+  let canvas : HTMLElement
 
-export default function Home() {
+  useEffect(() => {
+    if (canvas) return
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    canvas = document.getElementById("canvas")
+
+    const gui = new dat.GUI({ width : 300 })
+    gui.show(true)
+
+    const scene = new THREE.Scene()
+    const sizes = {
+      width : innerWidth,
+      height : innerHeight
+    }
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      sizes.width / sizes.height,
+      0.001,
+      1000
+    )
+    camera.position.z = 400
+    const renderer = new THREE.WebGLRenderer({
+      canvas : canvas,
+    })
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(window.devicePixelRatio)
+
+    // Ensure the correct program is being used
+    renderer.compile(scene, camera)
+
+    // パス
+    const pointsArray = [
+      [68.5, 185.5],
+      [1, 262.5],
+      [270.9, 281.9],
+      [345.5, 212.8],
+      [178, 155.7],
+      [240.3, 72.3],
+      [153.4, 0.6],
+      [52.6, 53.3],
+      [68.5, 185.5]
+    ]
+
+    let points : Vector3[] = []
+    for (let i = 0; i < pointsArray.length; i++) {
+      const x = pointsArray[i][0]
+      const y = 0
+      const z = pointsArray[i][1]
+      points.push(new THREE.Vector3(x, y, z))
+    }
+    const path = new THREE.CatmullRomCurve3(points)
+
+    // チューブ
+    const geometry = new THREE.TubeGeometry(path, 300, 2, 5, true)
+    const material = new THREE.MeshBasicMaterial({
+      color : 0x99c5ff,
+      side : THREE.BackSide,
+      wireframe : true
+    })
+    const tube = new THREE.Mesh(geometry, material)
+    scene.add(tube)
+    gui.addColor(material, "color")
+
+    //アニメーション
+    let percentage = 0
+    const render = () => {
+      percentage += 0.001
+      let p1 = path.getPointAt(percentage % 1)
+      let p2 = path.getPointAt((percentage + 0.01) % 1)
+      camera.position.set(p1.x, p1.y, p1.z)
+      camera.lookAt(p2)
+
+      renderer.render(scene, camera)
+      window.requestAnimationFrame(render)
+    }
+    render()
+
+    //ブラウザのリサイズ操作
+    window.addEventListener("resize", () => {
+      sizes.width = window.innerWidth
+      sizes.height = window.innerHeight
+
+      camera.aspect = sizes.width / sizes.height
+      camera.updateProjectionMatrix()
+
+      renderer.setSize(sizes.width, sizes.height)
+      renderer.setPixelRatio(window.devicePixelRatio)
+    })
+  }, [])
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    <>
+      <canvas id="canvas"></canvas>
+    </>
+  )
 }
+
+export default Home
