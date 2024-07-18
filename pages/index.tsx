@@ -70,7 +70,7 @@ const Home : NextPage = () => {
     scene.add(tube)
     gui.addColor(material, "color")
 
-    //アニメーション
+    // アニメーション
     let percentage = 0
     const render = () => {
       percentage += 0.0003
@@ -85,7 +85,7 @@ const Home : NextPage = () => {
     }
     render()
 
-    //ブラウザのリサイズ操作
+    // ブラウザのリサイズ操作
     window.addEventListener("resize", () => {
       sizes.width = window.innerWidth
       sizes.height = window.innerHeight
